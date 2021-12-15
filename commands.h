@@ -13,6 +13,8 @@
 #define MAX_ARG 20
 #define HIST_SIZE 49
 
+using namespace std;
+
 string bg_char = "&";
 
 typedef enum Boolean { FALSE , TRUE };
