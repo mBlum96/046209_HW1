@@ -10,6 +10,7 @@
 #include <sys/wait.h>
 #include <string>
 #include <vector>
+#include <fcntl.h>
 #define MAX_LINE_SIZE 80
 #define MAX_ARG 20
 #define HIST_SIZE 49

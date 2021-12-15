@@ -126,7 +126,7 @@ int ExeCmd(char* lineSize, char* cmdString)
 	//after updating the cmd history array:
 	hist_pointer += MAX_LINE_SIZE;
 	static char prev_dir[MAX_LINE_SIZE] ;
-	if(hist_pointer=0){// want strcpy to be called only the first time this 
+	if(hist_pointer==0){// want strcpy to be called only the first time this 
 	//function is called
 		strcpy(prev_dir,getcwd(pwd, MAX_LINE_SIZE));
 	}
@@ -214,8 +214,7 @@ int ExeCmd(char* lineSize, char* cmdString)
 		switch (num_arg)
 		{
 		case 0:
-			curr_jid = jobs.back()->jid;//it didn't predict jobs or any of it's 
-			//attributes, check out what is up with that.
+			curr_jid = jobs.back().jid;
 			break;
 		case 1:
 			curr_jid = atoi(args[1]);
@@ -267,8 +266,7 @@ int ExeCmd(char* lineSize, char* cmdString)
 		switch (num_arg)
 		{
 		case 0:
-			curr_jid = jobs.back()->jid;//it didn't predict jobs or any of it's 
-			//attributes, check out what is up with that.
+			curr_jid = jobs.back().jid;
 			break;
 		case 1:
 			curr_jid = atoi(args[1]);
@@ -366,7 +364,7 @@ int ExeCmd(char* lineSize, char* cmdString)
     {
         //signal()
         if( num_arg != 2){
-            illegal_cmd = TRUE;
+            illegal_cmd = true;
         }
         else {
             int file1, file2;
@@ -449,7 +447,7 @@ int ExeCmd(char* lineSize, char* cmdString)
  		ExeExternal(args, cmdString);
 	 	return 0;
 	}
-	if (illegal_cmd == TRUE)
+	if (illegal_cmd == true)
 	{
 		printf("smash error: > \"%s\"\n", cmdString);
 		return 1;
@@ -464,7 +462,7 @@ int ExeCmd(char* lineSize, char* cmdString)
 //**************************************************************************************
 void ExeExternal(char *args[MAX_ARG], char* cmdString)
 {
-	char* delimiters = " \t\n";  
+	char delimiters[4] = " \t\n";  
 	string delimitered_command = NULL;
 	
 	for(int i=0;i<MAX_ARG;i++){
@@ -510,23 +508,23 @@ void ExeExternal(char *args[MAX_ARG], char* cmdString)
 // Parameters: command string
 // Returns: 0- if complicated -1- if not
 //**************************************************************************************
-int ExeComp(char* lineSize)
-{
-	char ExtCmd[MAX_LINE_SIZE+2];
-	char *args[MAX_ARG];
-    if ((strstr(lineSize, "|")) || (strstr(lineSize, "<")) ||
-	 (strstr(lineSize, ">")) || (strstr(lineSize, "*")) || 
-	 (strstr(lineSize, "?")) || (strstr(lineSize, ">>")) || 
-	 (strstr(lineSize, "|&")))
-    {
-		// Add your code here (execute a complicated command)
+// int ExeComp(char* lineSize)
+// {
+// 	char ExtCmd[MAX_LINE_SIZE+2];
+// 	char *args[MAX_ARG];
+//     if ((strstr(lineSize, "|")) || (strstr(lineSize, "<")) ||
+// 	 (strstr(lineSize, ">")) || (strstr(lineSize, "*")) || 
+// 	 (strstr(lineSize, "?")) || (strstr(lineSize, ">>")) || 
+// 	 (strstr(lineSize, "|&")))
+//     {
+// 		// Add your code here (execute a complicated command)
 					
-		/* 
-		your code
-		*/
-	} 
-	return -1;
-}
+// 		/* 
+// 		your code
+// 		*/
+// 	} 
+// 	return -1;
+// }
 //**************************************************************************************
 // function name: BgCmd
 // Description: if command is in background, insert the command to jobs
@@ -537,7 +535,7 @@ int BgCmd(char* lineSize, void* jobs)
 {
 
 	char* Command;
-	char* delimiters = " \t\n";
+	char delimiters[4] = " \t\n";
 	char *args[MAX_ARG];
 	if (lineSize[strlen(lineSize)-2] == '&')
 	{
