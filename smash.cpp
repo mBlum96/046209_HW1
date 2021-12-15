@@ -11,6 +11,7 @@ main file. This file contains the main function of smash
 #include "commands.h"
 #include "signals.h"
 #include <vector>
+#include <iostream>
 
 using namespace std;
 #define MAX_LINE_SIZE 80
@@ -44,6 +45,28 @@ int main(int argc, char *argv[])
     new_sigaction.sa_handler = &new_signal_handler;
     new_sigaction.sa_flags = SA_RESTART;
 
+	try
+	{
+		if(sigaction(SIGINT, &new_sigaction, NULL)==-1){
+			throw 1;
+		}
+		if(sigaction(SIGTSTP, &new_sigaction, NULL)==-1){
+			throw 2;
+		}
+	}
+	catch(int x)
+	{
+		switch (x)
+		{
+		case 1:
+			perror("Error handeling SIGINT");
+			break;
+		case 2:
+			perror("Error handeling SIGTSTP");
+			break;
+		}
+	}
+
 	/************************************/
 
 	/************************************/
@@ -58,20 +81,20 @@ int main(int argc, char *argv[])
 	
     	while (1)
     	{
-	 	cout << "smash > ";
-		fgets(lineSize, MAX_LINE_SIZE, stdin);
-		strcpy(cmdString, lineSize);    	
-		cmdString[strlen(lineSize)-1]='\0';
-		//			// perform a complicated Command
-		//if(!ExeComp(lineSize)) continue;
-					// background command	
-	 	if(!BgCmd(lineSize, jobs)) continue; 
-					// built in commands
-		ExeCmd(jobs, lineSize, cmdString);
-		
-		/* initialize for next line read*/
-		lineSize[0]='\0';
-		cmdString[0]='\0';
+			cout << "smash > ";
+			fgets(lineSize, MAX_LINE_SIZE, stdin);
+			strcpy(cmdString, lineSize);    	
+			cmdString[strlen(lineSize)-1]='\0';
+			//			// perform a complicated Command
+			//if(!ExeComp(lineSize)) continue;
+						// background command	
+			if(!BgCmd(lineSize, &jobs)) continue; 
+						// built in commands
+			ExeCmd(&jobs, lineSize, cmdString);
+			
+			/* initialize for next line read*/
+			lineSize[0]='\0';
+			cmdString[0]='\0';
 	}
     return 0;
 }

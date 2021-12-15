@@ -8,6 +8,7 @@
 #include <string.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <string>
 #include <vector>
 #define MAX_LINE_SIZE 80
 #define MAX_ARG 20
@@ -17,7 +18,6 @@ using namespace std;
 
 string bg_char = "&";
 
-typedef enum Boolean { FALSE , TRUE };
 typedef struct job{
     pid_t pid;
     int time;
