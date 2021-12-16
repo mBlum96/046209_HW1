@@ -20,7 +20,7 @@ void new_signal_handler(int signum) {
         return;
     }
 
-    vector<job>::it job_it = jobs.begin();
+    vector<job>::iterator job_it = jobs.begin();
     for (; job_it != jobs.end() ; job_it++) {
         if(job_it->job_id == curr_jid){
             switch (signum) {
