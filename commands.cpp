@@ -7,7 +7,8 @@
 
 using namespace std;
 int curr_jid = 1;
-
+static char cmd_hist[HIST_SIZE][MAX_LINE_SIZE] = {'\0'};
+static int hist_pointer = 0;
 //********************************************
 
 vector<job>::iterator find_job(int jid,vector<job> jobs){
@@ -83,6 +84,18 @@ int jobs_status_update(){
 	}
 	return 0;
 }
+
+int check_if_built_in_cmd(char *Command){
+    if((!strcmp(Command,"pwd"))||(!strcmp(Command,"cd"))||
+	(!strcmp(Command,"history"))||(!strcmp(Command,"jobs"))||
+	(!strcmp(Command,"kill"))||(!strcmp(Command,"showpid"))||
+	(!strcmp(Command,"fg"))||(!strcmp(Command,"bg"))||(!strcmp(Command,"quit"))
+	||(!strcmp(Command,"diff"))){
+		return 1;
+	}
+    return 0;
+}
+
 //********************************************
 // function name: ExeCmd
 // Description: interperts and executes built-in commands
@@ -104,11 +117,11 @@ int ExeCmd(char* lineSize, char* cmdString)
 		return 0; 
    	args[0] = cmd;
 	int command_p = 0;
-	static int hist_pointer = 0;
+	//static int hist_pointer = 0;
 	int oldest_command = (hist_pointer/(HIST_SIZE+1))%(HIST_SIZE+1);
 	//the above line makes sure the oldest command is updated in case there are
 	//more than 50 commands
-	static char cmd_hist[HIST_SIZE][MAX_LINE_SIZE] = {'\0'};
+	//static char cmd_hist[HIST_SIZE][MAX_LINE_SIZE] = {'\0'};
 	string delimitered_command = NULL;
 	for (i=1; i<MAX_ARG; i++)
 	{
@@ -362,21 +375,29 @@ int ExeCmd(char* lineSize, char* cmdString)
 	/*************************************************/
     else if (!strcmp(cmd, "diff"))
     {
-        //signal()
-        if( num_arg != 2){
+        if(num_arg != 2){
             illegal_cmd = true;
         }
+
+        if (!strcmp(args[1], args[2])) {
+            cout << "0" << endl;
+            return 0;
+        }
+
         else {
-            int file1, file2;
+            int file1;
+            int file2;
 
             if ((file1 = open(args[1], O_RDONLY)) == -1) {
-                fprintf(stderr, "smash error: > ");
+                cout << "smash error: > " << endl;
                 perror("file does not exist");
+                return -1;
             }
 
             if ((file2 = open(args[2], O_RDONLY)) == -1) {
-                fprintf(stderr, "smash error: > ");
+                cout << "smash error: > " << endl;
                 perror("file does not exist");
+                return -1;
             }
 
             FILE *fp1 = fopen(args[1], "r");
@@ -397,6 +418,7 @@ int ExeCmd(char* lineSize, char* cmdString)
         }
 
     }
+
 	/*************************************************/
 	else if (!strcmp(cmd, "kill"))
 	//here args[1] is the signum and args[2] is the pid to kill
@@ -534,18 +556,58 @@ void ExeExternal(char *args[MAX_ARG], char* cmdString)
 int BgCmd(char* lineSize, void* jobs)
 {
 
-	char* Command;
-	char delimiters[4] = " \t\n";
-	char *args[MAX_ARG];
-	if (lineSize[strlen(lineSize)-2] == '&')
-	{
-		lineSize[strlen(lineSize)-2] = '\0';
-		// Add your code here (execute a in the background)
-					
-		/* 
-		your code
-		*/
+    char* Command;
+    char delimiters[4] = " \t\n";
+    char *args[MAX_ARG];
+	char cmd_str[MAX_LINE_SIZE] = {'\0'};
+	int oldest_command = (hist_pointer/(HIST_SIZE+1))%(HIST_SIZE+1);
+	strcpy(cmd_str,lineSize);
+    if (lineSize[strlen(lineSize)-2] == '&')
+    {
 		
-	}
-	return -1;
+		strcpy((cmd_hist[(oldest_command)%(HIST_SIZE+1)]),cmd_str);
+		//oldest_command = (oldest_command+1)%HIST_SIZE;
+		hist_pointer++;
+        //need to insert command to jobs?
+
+        lineSize[strlen(lineSize)-2] = '\0';
+        int i = 0;
+        int num_arg = 0;
+        Command = strtok(lineSize, delimiters);
+        if(Command == NULL) return 0;
+        args[0] = Command;
+        for (i=1; i<MAX_ARG; i++) {
+            args[i] = strtok(NULL, delimiters);
+            if (args[i] != NULL) {
+                if(args[i] != "&") num_arg++;
+                else args[i] == NULL; // the argument is "&"
+            }
+        }
+        if(check_if_built_in_cmd(Command)){
+            cout << "smash error: > " << lineSize << endl; //make sure printing lineSize is fine
+            return 0;
+        }
+        else{
+            int pid;
+            switch (pid = fork()) {
+                case 0:
+                    setgrp();
+                    execvp(Command, args);
+
+                    //if got here execvp failed
+                    cout << "smash error: > " << lineSize << endl; //make sure printing lineSize is fine
+                    exit(1);
+
+                case -1:
+                    cout << "smash error: > " << lineSize << endl; //make sure printing lineSize is fine
+
+                default:
+                    jobs.push_back({pid,static_cast<int>(time(nullptr)),
+                                    false, Command, curr_jid++});
+                    return 0;
+            }
+        }
+
+    }
+    return -1;
 }

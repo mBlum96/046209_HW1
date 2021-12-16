@@ -13,7 +13,7 @@
 #include <fcntl.h>
 #define MAX_LINE_SIZE 80
 #define MAX_ARG 20
-#define HIST_SIZE 49
+#define HIST_SIZE 50
 
 using namespace std;
 
