@@ -9,7 +9,7 @@ smash: $(OBJS)
 
 commands.o: commands.cpp commands.h
 smash.o: smash.cpp commands.h signals.h
-signals.o: signals.cpp sognals.h commands.h
+signals.o: signals.cpp signals.h commands.h
 
 clean:
 	$(RM) $(TARGET) *.o *~ "#"* core.* smash

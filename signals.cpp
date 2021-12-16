@@ -16,13 +16,13 @@
 extern vector<job> jobs;
 
 void new_signal_handler(int signum) {
-    if (curr_job_id == 0) {
+    if (curr_jid == 0) {
         return;
     }
 
     vector<job>::it job_it = jobs.begin();
     for (; job_it != jobs.end() ; job_it++) {
-        if(job_it->job_id == curr_job_id){
+        if(job_it->job_id == curr_jid){
             switch (signum) {
                 case SIGINT:
                     res = kill(job_it->pid,SIGINT);
@@ -48,7 +48,7 @@ void new_signal_handler(int signum) {
                 //case default:
 
             }
-            curr_job_id = 0;
+            curr_jid = 0;
             return;
         }
     }

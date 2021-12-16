@@ -61,7 +61,7 @@ int print_curr_directory (char *pwd){
 int jobs_status_update(){
 	if(jobs.empty()) return 0;
 	vector<job>::iterator it = jobs.begin(); 
-	int *status_p;
+	int *status_p = NULL;
 	while (it != jobs.end()){
 		pid_t changed_proc = waitpid(it->pid, status_p, 
 		WNOHANG| WUNTRACED| WCONTINUED);
@@ -553,7 +553,7 @@ void ExeExternal(char *args[MAX_ARG], char* cmdString)
 // Parameters: command string, pointer to jobs
 // Returns: 0- BG command -1- if not
 //**************************************************************************************
-int BgCmd(char* lineSize, void* jobs)
+int BgCmd(char* lineSize, vector<job>)
 {
 
     char* Command;
@@ -579,8 +579,8 @@ int BgCmd(char* lineSize, void* jobs)
         for (i=1; i<MAX_ARG; i++) {
             args[i] = strtok(NULL, delimiters);
             if (args[i] != NULL) {
-                if(args[i] != "&") num_arg++;
-                else args[i] == NULL; // the argument is "&"
+                if(strcmp(args[i],"&")) num_arg++;
+                else args[i] = NULL; // the argument is "&"
             }
         }
         if(check_if_built_in_cmd(Command)){
@@ -591,7 +591,7 @@ int BgCmd(char* lineSize, void* jobs)
             int pid;
             switch (pid = fork()) {
                 case 0:
-                    setgrp();
+                    setpgrp();
                     execvp(Command, args);
 
                     //if got here execvp failed
@@ -600,6 +600,7 @@ int BgCmd(char* lineSize, void* jobs)
 
                 case -1:
                     cout << "smash error: > " << lineSize << endl; //make sure printing lineSize is fine
+					exit(-1);
 
                 default:
                     jobs.push_back({pid,static_cast<int>(time(nullptr)),

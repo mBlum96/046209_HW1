@@ -16,7 +16,7 @@
 #define HIST_SIZE 50
 
 using namespace std;
-
+extern int curr_jid;
 string bg_char = "&";
 
 typedef struct job{
