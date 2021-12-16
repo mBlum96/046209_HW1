@@ -514,7 +514,7 @@ void ExeExternal(char *args[MAX_ARG], char* cmdString)
 			
 			default:
 					// Add your code here
-					if(!hasEnding(delimitered_command,bg_char)){
+					if(!hasEnding(delimitered_command,"&")){
 						jobs.push_back({pID,static_cast<int>(time(nullptr)),
 						false, args[0], curr_jid++});
 					}

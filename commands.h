@@ -17,7 +17,7 @@
 
 using namespace std;
 extern int curr_jid;
-string bg_char = "&";
+//string bg_char = "&";
 
 typedef struct job{
     pid_t pid;
